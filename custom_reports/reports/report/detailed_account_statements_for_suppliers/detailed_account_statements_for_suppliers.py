@@ -128,10 +128,10 @@ def get_items_from_vouchers(vouchers):
             item_dict["remark"]=voucher["remarks"]
             item_dict["date"]=voucher["posting_date"]
             if voucher["payment_type"]=="Receive":
-                item_dict["type"]="credit"
+                item_dict["type"]= "debit"
                 item_dict["credit"]=voucher["paid_amount"]
             if voucher["payment_type"]=="Pay" :
-                item_dict["type"]="debit"
+                item_dict["type"]= "credit"
                 item_dict["debit"]=voucher["received_amount"]
             
             vouchers_items.append(item_dict)
@@ -154,9 +154,9 @@ def get_items_from_vouchers(vouchers):
                     
                     is_return=frappe.db.get_value("Purchase Invoice",voucher["name"],"is_return")
                     if is_return:
-                        field="credit"
+                        field="debit"
                     else:
-                        field="debit" 
+                        field="credit"
 
                     item_dict["type"]= field
                     item_dict[field]=abs(purchase_invoice_item["net_amount"])
