@@ -88,7 +88,7 @@ def get_data(filters):
         if len(payment_entries):
             for payment in payment_entries:
                 payment["voucher_type"]="Payment Entry"
-                payment["type"]="credit"
+                payment["type"]="debit"
                 vouchers.append(payment)  
         
         if len(vouchers) :   
