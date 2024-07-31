@@ -170,10 +170,10 @@ def get_items_from_vouchers(vouchers):
 
 
 def update_balance(balance,type,amount):
-    if type=="credit":
-        balance+=amount
+    if type=="debit":
+        balance-=amount
     else:
-         balance-=amount 
+         balance==amount 
 
     return balance       
     
