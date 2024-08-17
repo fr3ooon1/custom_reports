@@ -29,8 +29,8 @@ def get_columns(filters):
     columns = [
          
        {"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 100},
-        {"label": _("Voucher Type"), "fieldname": "voucher_type", "fieldtype": "Data", "width": 100},
-         {"label": _("Voucher no"), "fieldname": "voucher_no", "fieldtype": "Data", "width": 200},
+        {"label": _("Voucher Type"), "fieldname": "voucher_type", "fieldtype": "Link","options":"Doctype", "width": 100},
+         {"label": _("Voucher no"), "fieldname": "voucher_no", "fieldtype": "Dynamic Link","options":"voucher_type", "width": 200},
          {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link","options":"Customer", "width": 200},
          {"label": _("Customer Name"), "fieldname": "customer_name", "width": 200},
          {"label": _("Remark"), "fieldname": "remark", "fieldtype": "Data", "width": 230},
