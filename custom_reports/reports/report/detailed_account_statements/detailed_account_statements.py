@@ -31,6 +31,8 @@ def get_columns(filters):
        {"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 100},
         {"label": _("Voucher Type"), "fieldname": "voucher_type", "fieldtype": "Data", "width": 100},
          {"label": _("Voucher no"), "fieldname": "voucher_no", "fieldtype": "Data", "width": 200},
+         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link","options":"Customer", "width": 200},
+         {"label": _("Customer Name"), "fieldname": "customer_name", "width": 200},
          {"label": _("Remark"), "fieldname": "remark", "fieldtype": "Data", "width": 230},
          {"label": _("Quantity"), "fieldname": "quantity", "fieldtype": "Data", "width": 102},
          {"label": _("UOM"), "fieldname": "uom", "fieldtype": "Data", "width": 150},
@@ -57,12 +59,26 @@ def get_columns(filters):
     return columns
 
 def get_data(filters):
+    data = []
+
+    if filters.get("customer"):
+        data = get_data_for_customer(filters, filters.get("customer"))
+    elif filters.get("customer_group"):
+        customers = frappe.get_list("Customer", filters={'customer_group': filters.get("customer_group")})
+        for customer in customers:
+            temp = get_data_for_customer(filters, customer.name)
+            data.extend(temp) 
+    return data
+
+
+
+def get_data_for_customer(filters , customer):
         balance=0
-        sales_filter=set_sales_filters(filters)
-        payment_filter=set_payment_filters(filters)
+        sales_filter=set_sales_filters(filters , customer)
+        payment_filter=set_payment_filters(filters , customer)
 
         data = []
-        opening_balance=get_opening_balance(filters.get("customer"),filters.get("from_date"))
+        opening_balance=get_opening_balance(customer,filters.get("from_date"))
         opening_debit=0
         opening_credit=0
         field="debit" if opening_balance > 0 else "credit"
@@ -77,9 +93,9 @@ def get_data(filters):
 
         vouchers=[]
 
-        sales_invoices=frappe.db.get_all("Sales Invoice",filters=sales_filter,fields=["name","is_return","posting_date"])
+        sales_invoices=frappe.db.get_all("Sales Invoice",filters=sales_filter,fields=["name","is_return","posting_date" , "customer" , "customer_name"])
         
-        payment_entries=frappe.db.get_all("Payment Entry",filters=payment_filter,fields=["name","posting_date","paid_amount","remarks","payment_type","received_amount"])
+        payment_entries=frappe.db.get_all("Payment Entry",filters=payment_filter,fields=["name","posting_date","paid_amount","party as customer","party_name as customer_name","remarks","payment_type","received_amount"])
 
         if len(sales_invoices):
             for sales in sales_invoices:
@@ -91,7 +107,6 @@ def get_data(filters):
                 payment["voucher_type"]="Payment Entry"
                 payment["type"]="credit"
                 vouchers.append(payment)  
-        
         if len(vouchers) :   
             vouchers=arrange_vouchers_dates(vouchers) 
                          
@@ -99,9 +114,7 @@ def get_data(filters):
             vouchers=get_items_from_vouchers(vouchers)
             total_debit=0
             total_credit=0
-
             for v in vouchers:
-                
                 if "debit" in v:
                     total_debit+=v["debit"] 
                     amount=v["debit"] 
@@ -112,7 +125,7 @@ def get_data(filters):
                 balance=update_balance(balance,v["type"],amount)
                 v["balance"]=balance
                 data.append(v)
-            data.append({"remark":"Totals","debit":total_debit+opening_debit,"credit":total_credit+opening_credit,"balance":balance})
+            data.append({"remark":"Totals","debit":total_debit+opening_debit,"credit":total_credit+opening_credit,"balance":balance })
             
            
         return data
@@ -128,6 +141,8 @@ def get_items_from_vouchers(vouchers):
             item_dict["voucher_no"]=voucher["name"]
             item_dict["remark"]=voucher["remarks"]
             item_dict["date"]=voucher["posting_date"]
+            item_dict["customer"]=voucher["customer"]
+            item_dict["customer_name"]=voucher["customer_name"]
             if voucher["payment_type"]=="Receive":
                 item_dict["type"]="credit"
                 item_dict["credit"]=voucher["paid_amount"]
@@ -147,6 +162,8 @@ def get_items_from_vouchers(vouchers):
                     item_dict={}
                     item_dict["date"]=frappe.db.get_value("Sales Invoice",voucher["name"],"posting_date")
                     item_dict["voucher_type"]="Sales Invoice"
+                    item_dict["customer"]=voucher["customer"]
+                    item_dict["customer_name"]=voucher["customer_name"]
                     item_dict["voucher_no"]=voucher["name"]
                     item_dict["remark"]=frappe.db.get_value("Item",sales_invoice_item["item_code"],"item_name")
                     item_dict["quantity"]=sales_invoice_item["qty"]
@@ -218,11 +235,11 @@ def calc_balance(balance,voucher):
     if voucher["voucher_type"]=="Payment Entry":
         balance=balance-voucher[""]
 
-def set_sales_filters(filters):
+def set_sales_filters(filters , customer):
     sales_filters = {}
     sales_filters["docstatus"]=1
-    if filters.get("customer"):
-        sales_filters["customer"] = ["in", filters.get("customer")]
+    if customer:
+        sales_filters["customer"] = ["in", customer]
 
     if filters.get("to_date") and filters.get("from_date"):
         sales_filters["posting_date"] = [
@@ -231,11 +248,11 @@ def set_sales_filters(filters):
 
 
     return sales_filters
-def set_payment_filters(filters):
+def set_payment_filters(filters , customer):
     payment_filters={}
     payment_filters["docstatus"]=1
-    if filters.get("customer"):
-        payment_filters["party"] = ["in", filters.get("customer")]
+    if customer:
+        payment_filters["party"] = ["in", customer]
     if filters.get("to_date") and filters.get("from_date"):
         payment_filters["posting_date"] = [
             "between", (filters.get("from_date"), filters.get("to_date"))]    
