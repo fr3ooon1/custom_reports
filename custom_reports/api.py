@@ -26,7 +26,7 @@ def get_balance(party , doctype):
 
 	total_balance = balance(party)
 	total = invoices[0].get('total') if invoices else 0
-	result = float(total_balance or 0) - float(total or 0)
+	result = float(total or 0) - float(total_balance or 0) 
 	return result
 
 def balance(party):
