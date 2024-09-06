@@ -36,7 +36,7 @@ def balance(party):
 						  `tabPayment Entry`
 						where 
 						  docstatus = 1 and
-						  payment_type = 'Receive'
+						  payment_type = 'Receive' and
 						  party = '{party}'
 
 				""",as_dict=1)
@@ -47,7 +47,7 @@ def balance(party):
 						  `tabPayment Entry`
 						where 
 						  docstatus = 1 and
-						  payment_type = 'Pay'
+						  payment_type = 'Pay' and
 						  party = '{party}'
 
 				""",as_dict=1)
