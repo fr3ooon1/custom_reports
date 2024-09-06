@@ -8,7 +8,7 @@ def get_balance(party , doctype):
 	if doctype == "Sales Invoice":
 		invoices = frappe.db.sql(f""" 
 								select 
-									sum(grand_total) as total 
+									sum(outstanding_amount) as total 
 								from 
 						   			`tabSales Invoice` 
 						   		where
@@ -18,7 +18,7 @@ def get_balance(party , doctype):
 	elif doctype == "Purchase Invoice":
 		invoices = frappe.db.sql(f""" 
 						   	select 
-								sum(grand_total) as total 
+								sum(outstanding_amount) as total 
 						   	from 
 						   		`tabPurchase Invoice` 
 						   	where
