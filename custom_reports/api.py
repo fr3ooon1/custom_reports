@@ -31,7 +31,7 @@ def get_balance(party , doctype):
 def balance(party):
 	total_receive = frappe.db.sql(f"""
 				select 
-						  sum(paid_amount)
+						  sum(paid_amount) as total_receive
 						from
 						  `tabPayment Entry`
 						where 
@@ -42,7 +42,7 @@ def balance(party):
 				""",as_dict=1)
 	total_pay = frappe.db.sql(f"""
 				select 
-						  sum(paid_amount)
+						  sum(paid_amount) as total_pay
 						from
 						  `tabPayment Entry`
 						where 
