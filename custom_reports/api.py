@@ -33,7 +33,7 @@ def balance(party):
 				select 
 						  sum(paid_amount)
 						from
-						  `tabPayment Entry
+						  `tabPayment Entry`
 						where 
 						  docstatus = 1 and
 						  payment_type = 'Receive'
@@ -44,7 +44,7 @@ def balance(party):
 				select 
 						  sum(paid_amount)
 						from
-						  `tabPayment Entry
+						  `tabPayment Entry`
 						where 
 						  docstatus = 1 and
 						  payment_type = 'Pay'
