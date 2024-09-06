@@ -52,6 +52,10 @@ def balance(party):
 
 				""",as_dict=1)
 	
-	total = float(total_receive[0].get("paid_amount") if total_receive else 0) - float(total_pay[0].get("paid_amount") if total_pay else 0)
+	total_receive = total_receive[0].get('total_receive') if total_receive and total_receive[0].get('total_receive') is not None else 0
+	total_pay = total_pay[0].get('total_pay') if total_pay and total_pay[0].get('total_pay') is not None else 0
+
+	# Calculate the balance
+	total = float(total_receive) - float(total_pay)
 	return total
 	
