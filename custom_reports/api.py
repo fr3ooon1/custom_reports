@@ -14,16 +14,17 @@ def get_balance(party , doctype):
 						   		where
 						   			docstatus = 1 and 
 						   			status != 'Paid' and
-						   			customer = {party}""" , as_dict = 1)
+						   			customer = '{party}'""" , as_dict = 1)
 	elif doctype == "Purchase Invoice":
 		invoices = frappe.db.sql(f""" 
 						   	select 
 								sum(grand_total) as total 
-						   	from `tabPurchase Invoice` 
+						   	from 
+						   		`tabPurchase Invoice` 
 						   	where
 						   		docstatus = 1 and
 						   		status != 'Paid' and
-						   		supplier = {party}""" , as_dict = 1)
+						   		supplier = '{party}'""" , as_dict = 1)
 
 	return invoices
 	
