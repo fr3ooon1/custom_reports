@@ -9,8 +9,8 @@ frappe.ui.form.on('Purchase Invoice', {
                 },
                 callback: function (r) {
                   if (r.message) {
-                    console.log(r.message[0].total);
-                    frm.set_value("custom_balance" , r.message[0].total);
+                    console.log(r.message);
+                    frm.set_value("custom_balance" , r.message);
                     frm.refresh_field("custom_balance");
                   }
                 },
